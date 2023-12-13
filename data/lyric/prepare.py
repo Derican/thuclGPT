@@ -1,6 +1,7 @@
 import os
 import requests
 import tiktoken
+from transformers import AutoTokenizer
 import numpy as np
 
 input_train_file_path = os.path.join(
@@ -19,9 +20,9 @@ train_data = data_train
 val_data = data_valid
 
 # encode with tiktoken gpt2 bpe
-enc = tiktoken.get_encoding("gpt2")
-train_ids = enc.encode_ordinary(train_data)
-val_ids = enc.encode_ordinary(val_data)
+enc = AutoTokenizer.from_pretrained("uer/gpt2-xlarge-chinese-cluecorpussmall")
+train_ids = enc(train_data)["input_ids"]
+val_ids = enc(val_data)["input_ids"]
 print(f"train has {len(train_ids):,} tokens")
 print(f"val has {len(val_ids):,} tokens")
 

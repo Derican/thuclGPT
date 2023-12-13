@@ -219,8 +219,7 @@ class GPT(nn.Module):
             'gpt2-medium':  dict(n_layer=24, n_head=16, n_embd=1024, vocab_size=50257), # 350M params
             'gpt2-large':   dict(n_layer=36, n_head=20, n_embd=1280, vocab_size=50257), # 774M params
             'gpt2-xl':      dict(n_layer=48, n_head=25, n_embd=1600, vocab_size=50257), # 1558M params
-            # 124M params
-            "models/gpt2-xlarge-chinese-cluecorpussmall": dict(n_layer=12, n_head=12, n_embd=768, vocab_size=21128),
+            "models/gpt2-xlarge-chinese-cluecorpussmall": dict(n_layer=48, n_head=25, n_embd=1600, vocab_size=21128),
         }[model_type]
         print("forcing block_size=1024, bias=True")
         # config_args['vocab_size'] = 50257 # always 50257 for GPT model checkpoints

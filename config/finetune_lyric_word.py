@@ -1,13 +1,13 @@
 import time
 
-out_dir = '/root/autodl-tmp/out-lyric-ft'
+out_dir = 'out-lyric-ft-word'
 eval_interval = 5
 eval_iters = 40
 wandb_log = False # feel free to turn on
-wandb_project = 'lyric-ft'
+wandb_project = 'lyric-ft-word'
 wandb_run_name = 'ft-' + str(time.time())
 
-dataset = 'lyric'
+dataset = 'lyric_word'
 init_from = 'models/gpt2-xlarge-chinese-cluecorpussmall'
 
 # only save checkpoints if the validation loss improves
@@ -19,7 +19,7 @@ always_save_checkpoint = False
 batch_size = 1
 gradient_accumulation_steps = 32
 max_iters = 20
-block_size = 1
+block_size = 256
 
 # finetune at constant LR
 learning_rate = 3e-5

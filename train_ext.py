@@ -224,16 +224,30 @@ with open(meta_path, 'rb') as f:
 model_type = meta["model_type"]
 vocab_size = meta["vocab_size"]
 sp_path = os.path.join(
-    'data', checkpoint['config']['dataset'], f'{model_type}_{vocab_size}.model')
+    'data', dataset, f'{model_type}_{vocab_size}.model')
 sp = spm.SentencePieceProcessor(
     model_file=sp_path)
 new_vocab_size = sp.vocab_size()
 
-new_embeds = torch.nn.Embedding(new_vocab_size, hidden_size, dtype=model.dtype)
+new_embeds = torch.nn.Embedding(
+    new_vocab_size, hidden_size, dtype=model.transformer.wte.weight.dtype)
 new_lm_head = torch.nn.Linear(
-    in_features=hidden_size, out_features=new_vocab_size, bias=False, dtype=model.dtype)
+    in_features=hidden_size, out_features=new_vocab_size, bias=False, dtype=model.lm_head.weight.dtype)
 
+for new_id in range(new_vocab_size):
+    new_token = sp.IdToPiece(new_id)
+    old_ids = old_tokenizer(new_token)["input_ids"]
+    new_embeds.weight.data[new_id] = model.transformer.wte.weight.data[old_ids].mean(
+        dim=0)
+    new_lm_head.weight.data[new_id] = model.lm_head.weight.data[old_ids].mean(
+        dim=0)
+model.transformer.wte.weight = new_embeds.weight
+model.lm_head.weight = new_lm_head.weight
 
+model.to(device)
+
+sp = None
+old_tokenizer = None
 model.to(device)
 
 # initialize a GradScaler. If enabled=False scaler is a no-op

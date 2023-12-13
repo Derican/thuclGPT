@@ -212,6 +212,7 @@ if block_size < model.config.block_size:
     model.crop_block_size(block_size)
     # so that the checkpoint will have the right value
     model_args['block_size'] = block_size
+    print(f"model block_size has been cropped to {block_size}")
 model.to(device)
 
 # initialize a GradScaler. If enabled=False scaler is a no-op
