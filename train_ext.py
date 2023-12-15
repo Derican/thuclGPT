@@ -29,6 +29,7 @@ from torch.distributed import init_process_group, destroy_process_group
 
 from model import GPTConfig, GPT
 import sentencepiece as spm
+from transformers import AutoTokenizer
 
 # -----------------------------------------------------------------------------
 # default config values designed to train a gpt2 (124M) on OpenWebText
@@ -217,6 +218,7 @@ if block_size < model.config.block_size:
 # Replace Embedding and LMHead
 hidden_size = model.config.n_embd
 old_vocab_size = model.config.vocab_size
+old_tokenizer = AutoTokenizer.from_pretrained(init_from)
 
 meta_path = os.path.join('data', dataset, 'meta.pkl')
 with open(meta_path, 'rb') as f:
