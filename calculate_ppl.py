@@ -8,13 +8,15 @@ import torch
 import tiktoken
 from model import GPTConfig, GPT
 import sentencepiece as spm
+from transformers import AutoTokenizer
+import numpy as np
 
 # -----------------------------------------------------------------------------
 # either 'resume' (from an out_dir) or a gpt2 variant (e.g. 'gpt2-xl')
 init_from = 'resume'
 out_dir = 'out'  # ignored if init_from is not 'resume'
 # or "<|endoftext|>" or etc. Can also specify a file, use as: "FILE:prompt.txt"
-start = "FILE:prompt.txt"
+start = "FILE:lyric_test.txt"
 num_samples = 10  # number of samples to draw
 max_new_tokens = 20  # number of tokens generated in each sample
 # 1.0 = no change, < 1.0 = less random, > 1.0 = more random, in predictions
@@ -74,9 +76,9 @@ if load_meta:
     with open(meta_path, 'rb') as f:
         meta = pickle.load(f)
     # TODO want to make this more general to arbitrary encoder/decoder schemes
-    if meta["vocab_type"] == "classic":
+    if "vocab_type" not in meta or meta["vocab_type"] == "classic":
         stoi, itos = meta['stoi'], meta['itos']
-        def encode(s): return [stoi[c] for c in s]
+        def encode(s): return [stoi[c] for c in s if c in stoi]
         def decode(l): return ''.join([itos[i] for i in l])
     elif meta["vocab_type"] == "sp":
         model_type = meta["model_type"]
@@ -91,7 +93,8 @@ if load_meta:
 else:
     # ok let's assume gpt-2 encodings by default
     print("No meta.pkl found, assuming GPT-2 encodings...")
-    enc = tiktoken.get_encoding("gpt2")
+    enc = AutoTokenizer.from_pretrained(
+        "uer/gpt2-xlarge-chinese-cluecorpussmall")
     def encode(s): return enc.encode(s, allowed_special={"<|endoftext|>"})
     def decode(l): return enc.decode(l)
 
@@ -99,6 +102,7 @@ else:
 if start.startswith('FILE:'):
     with open(start[5:], 'r', encoding='utf-8') as f:
         start = f.read()
+perp=[]
 for st in start.split('\n'):
     if len(st) <= 0:
         continue
@@ -112,5 +116,6 @@ for st in start.split('\n'):
             # print(decode(y[0].tolist()))
             # print('---------------')
             logits, loss = model.forward(x, targets=x)
-            ppl = torch.exp(loss/len(x))
-            print(ppl.item())
+            ppl = torch.exp(loss/len(x)).item()
+            perp.append(ppl)
+print(np.mean(perp), np.std(perp))
