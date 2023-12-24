@@ -281,6 +281,7 @@ t0 = time.time()
 local_iter_num = 0  # number of iterations in the lifetime of this process
 raw_model = model.module if ddp else model  # unwrap DDP container if needed
 running_mfu = -1.0
+loss_step, train_loss, val_loss = [], [], []
 while True:
 
     # determine and set the learning rate for this iteration
@@ -293,6 +294,9 @@ while True:
         losses = estimate_loss()
         print(
             f"step {iter_num}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
+        loss_step.append(iter_num)
+        train_loss.append(losses['train'])
+        val_loss.append(losses['val'])
         if wandb_log:
             wandb.log({
                 "iter": iter_num,
@@ -368,3 +372,27 @@ while True:
 
 if ddp:
     destroy_process_group()
+
+if master_process:
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    fig = plt.figure(figsize=(16, 6), dpi=400)
+    axes = fig.subplots(1, 2)
+    axes[0].plot(loss_step, train_loss, color='blue')
+    axes[0].set_title('Training loss')
+    axes[0].set_xlabel('Steps')
+    axes[0].set_ylabel('Loss')
+    axes[0].set_xlim(0, loss_step[-1] + 1)
+    axes[0].set_ylim(0, max(np.ceil(np.max(train_loss)),
+                            np.ceil(np.max(val_loss))) + 1)
+
+    axes[1].plot(loss_step, val_loss, color='orange')
+    axes[1].set_title('Validation loss')
+    axes[1].set_xlabel('Steps')
+    axes[1].set_ylabel('Loss')
+    axes[1].set_xlim(0, loss_step[-1] + 1)
+    axes[1].set_ylim(0, max(np.ceil(np.max(train_loss)),
+                            np.ceil(np.max(val_loss))) + 1)
+
+    plt.savefig(os.path.join(out_dir, 'loss.png'))

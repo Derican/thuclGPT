@@ -102,7 +102,8 @@ else:
 if start.startswith('FILE:'):
     with open(start[5:], 'r', encoding='utf-8') as f:
         start = f.read()
-perp=[]
+perp = []
+losses = []
 for st in start.split('\n'):
     if len(st) <= 0:
         continue
@@ -116,6 +117,8 @@ for st in start.split('\n'):
             # print(decode(y[0].tolist()))
             # print('---------------')
             logits, loss = model.forward(x, targets=x)
+            losses.append(loss.item())
             ppl = torch.exp(loss/len(x)).item()
             perp.append(ppl)
-print(np.mean(perp), np.std(perp))
+print(f"Loss: {np.mean(losses)} ({np.std(losses)})")
+print(f"Perplexity: {np.mean(perp)} ({np.std(perp)})")
