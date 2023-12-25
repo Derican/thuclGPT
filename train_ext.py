@@ -432,4 +432,5 @@ if master_process:
     axes[1].set_ylim(0, max(np.ceil(np.max(train_loss)),
                             np.ceil(np.max(val_loss))) + 1)
 
+    plt.tight_layout()
     plt.savefig(os.path.join(out_dir, 'loss.png'))
