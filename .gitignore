@@ -10,3 +10,5 @@ __pycache__/
 loss.png
 input.txt
 models/
+logs_char/
+logs_word/

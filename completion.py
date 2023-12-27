@@ -8,13 +8,14 @@ import torch
 import tiktoken
 from model import GPTConfig, GPT
 import sentencepiece as spm
+from transformers import AutoTokenizer
 
 # -----------------------------------------------------------------------------
 init_from = 'resume' # either 'resume' (from an out_dir) or a gpt2 variant (e.g. 'gpt2-xl')
 out_dir = 'out' # ignored if init_from is not 'resume'
 start = "FILE:prompt.txt" # or "<|endoftext|>" or etc. Can also specify a file, use as: "FILE:prompt.txt"
 num_samples = 10 # number of samples to draw
-max_new_tokens = 20 # number of tokens generated in each sample
+max_new_tokens = 30 # number of tokens generated in each sample
 temperature = 0.8 # 1.0 = no change, < 1.0 = less random, > 1.0 = more random, in predictions
 top_k = 200 # retain only the top_k most likely tokens, clamp others to have 0 probability
 seed = 1337
@@ -81,8 +82,8 @@ if load_meta:
 else:
     # ok let's assume gpt-2 encodings by default
     print("No meta.pkl found, assuming GPT-2 encodings...")
-    enc = tiktoken.get_encoding("gpt2")
-    encode = lambda s: enc.encode(s, allowed_special={"<|endoftext|>"})
+    enc = AutoTokenizer.from_pretrained("uer/gpt2-xlarge-chinese-cluecorpussmall")
+    encode = lambda s: enc.encode(s)
     decode = lambda l: enc.decode(l)
 
 # encode the beginning of the prompt

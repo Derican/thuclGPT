@@ -10,6 +10,7 @@ from model import GPTConfig, GPT
 import sentencepiece as spm
 from transformers import AutoTokenizer
 import numpy as np
+from tqdm import tqdm
 
 # -----------------------------------------------------------------------------
 # either 'resume' (from an out_dir) or a gpt2 variant (e.g. 'gpt2-xl')
@@ -95,7 +96,7 @@ else:
     print("No meta.pkl found, assuming GPT-2 encodings...")
     enc = AutoTokenizer.from_pretrained(
         "uer/gpt2-xlarge-chinese-cluecorpussmall")
-    def encode(s): return enc.encode(s, allowed_special={"<|endoftext|>"})
+    def encode(s): return enc.encode(s)
     def decode(l): return enc.decode(l)
 
 # encode the beginning of the prompt
@@ -104,21 +105,24 @@ if start.startswith('FILE:'):
         start = f.read()
 perp = []
 losses = []
-for st in start.split('\n'):
-    if len(st) <= 0:
-        continue
-    start_ids = encode(st + '\n')
+start_encodings = encode(start)
+test_len = len(start_encodings)
+block_size = gptconf.block_size
+for begin_loc in tqdm(range(0, test_len, block_size)):
+    end_loc = min(begin_loc + block_size, test_len)
+    start_ids = start_encodings[begin_loc:end_loc]
     x = (torch.tensor(start_ids, dtype=torch.long, device=device)[None, ...])
+    y = torch.zeros_like(x)
+    y[:, :-1] = x[:, 1:]
+    y[:, -1] = -1
 
     # run generation
     with torch.no_grad():
         with ctx:
-            # y = model.generate(x, max_new_tokens, temperature=temperature, top_k=top_k)
-            # print(decode(y[0].tolist()))
-            # print('---------------')
-            logits, loss = model.forward(x, targets=x)
+            logits, loss = model.forward(x, targets=y)
             losses.append(loss.item())
-            ppl = torch.exp(loss/len(x)).item()
+            ppl = torch.exp(loss).item()
             perp.append(ppl)
+
 print(f"Loss: {np.mean(losses)} ({np.std(losses)})")
 print(f"Perplexity: {np.mean(perp)} ({np.std(perp)})")
