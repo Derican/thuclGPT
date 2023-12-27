@@ -8,6 +8,7 @@ import torch
 import tiktoken
 from model import GPTConfig, GPT
 import sentencepiece as spm
+from transformers import AutoTokenizer
 
 # -----------------------------------------------------------------------------
 init_from = 'resume' # either 'resume' (from an out_dir) or a gpt2 variant (e.g. 'gpt2-xl')
@@ -81,8 +82,8 @@ if load_meta:
 else:
     # ok let's assume gpt-2 encodings by default
     print("No meta.pkl found, assuming GPT-2 encodings...")
-    enc = tiktoken.get_encoding("gpt2")
-    encode = lambda s: enc.encode(s, allowed_special={"<|endoftext|>"})
+    enc = AutoTokenizer.from_pretrained("uer/gpt2-xlarge-chinese-cluecorpussmall")
+    encode = lambda s: enc.encode(s)
     decode = lambda l: enc.decode(l)
 
 # encode the beginning of the prompt

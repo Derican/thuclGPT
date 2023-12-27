@@ -230,6 +230,7 @@ sp_path = os.path.join(
 sp = spm.SentencePieceProcessor(
     model_file=sp_path)
 new_vocab_size = sp.vocab_size()
+model_args["vocab_size"] = new_vocab_size
 
 new_embeds = torch.nn.Embedding(
     new_vocab_size, hidden_size, dtype=model.transformer.wte.weight.dtype)
