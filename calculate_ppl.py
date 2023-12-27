@@ -10,6 +10,7 @@ from model import GPTConfig, GPT
 import sentencepiece as spm
 from transformers import AutoTokenizer
 import numpy as np
+from tqdm import tqdm
 
 # -----------------------------------------------------------------------------
 # either 'resume' (from an out_dir) or a gpt2 variant (e.g. 'gpt2-xl')
@@ -104,7 +105,7 @@ if start.startswith('FILE:'):
         start = f.read()
 perp = []
 losses = []
-for st in start.split('\n'):
+for st in tqdm(start.split('\n')):
     if len(st) <= 0:
         continue
     start_ids = encode(st + '\n')
