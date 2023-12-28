@@ -32,10 +32,10 @@ ctx = nullcontext() if device_type == 'cpu' else torch.amp.autocast(
 
 MODELS = {
     "lyric_char": {
-        "out_dir": "out-lyric-char"
+        "out_dir": "out-lyric-char_28"
     },
     "lyric_word": {
-        "out_dir": "out-lyric-word"
+        "out_dir": "out-lyric-word_11"
     },
     "lyric_gpt2_ft": {
         "out_dir": "/root/autodl-tmp/out-lyric-ft"
@@ -171,7 +171,7 @@ with gr.Blocks() as demo:
                               interactive=True)
             temperature = gr.Slider(0,
                                     1,
-                                    value=0.6,
+                                    value=0.8,
                                     step=0.01,
                                     label="Temperature",
                                     interactive=True)

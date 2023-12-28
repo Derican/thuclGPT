@@ -34,9 +34,9 @@ Dataset is created from a chinese lyric dataset, described as follows.
 
 |dataset|length|
 |-|-|
-|train||
-|valid||
-|test||
+|train|34M|
+|valid|864K|
+|test|180K|
 
 For data preparation, simply run the `prepare.py` in `data` folder. For example, for `out-lyric-char`, just run
 
@@ -76,10 +76,10 @@ For web demo, simply run `python web_demo.py` and check the browser. The simple 
 
 |model|loss|val_loss|test_ppl|VRAM|
 |-|-|-|-|-|
-|out-lyric-char|-|-|-|-|
-|out-lyric-word|-|-|-|-|
-|out-lyric-ft|-|-|-|-|
-|out-lyric-ft-word|-|-|-|-|
+|out-lyric-char|1.60|1.92|7.71|17G|
+|out-lyric-word|3.08|4.10|82.29|17G|
+|out-lyric-ft|2.04|1.99|9.59|37G|
+|out-lyric-ft-word|3.35|3.68|10228.98|37G|
 
 ## acknowledgements
 
